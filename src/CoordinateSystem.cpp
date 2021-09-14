@@ -1,35 +1,60 @@
-class CoordSystem {
- private:
-	class Vector {
-	 public:
-	 	Vector(float x, float y, float origin_x, float origin_y,
-	 		     Color color = {}) {
-	 		x_ = x;
-	 		y_ = y;
-	 		origin_x = origin_x_;
-	 		origin_y = origin_y_;
-	 		color_ = color;
-	 	}
+#include <math.h>
+#include "../include/main.h"
+#include "../include/shapes.h"
+#include "../include/render.h"
+#include "../include/CoordinateSystem.h"
 
-	 	Rotate(float angle) {
-	 	  x_ = x_ * cos(angle) - y_ * sin(angle);
-      y_ = x_ * sin(angle) + y_ * cos(angle);	
-	 	}
+VectorInCoordinateSystem::
+VectorInCoordinateSystem(Point2D<float> origin,
+	                       Point2D<float> coordinate,
+ 		                     Color color) {
+	origin_ = origin;
+	coordinate_ = coordinate;
+	color_ = color;
+}
 
-	 private:
-		float x_ = 0;
-		float y_ = 0;
-		float origin_x_ = 0;
-		float origin_y_ = 0;
-		Color color_;
-	};
-	size_t max_x = 0;
-	size_t max_y = 0;
-	// coordinates are relative to frame
-	size_t center_x = 0;
-	size_t center_y = 0;
-	// coordinates of 1, relative to frame
-	size_t x_1 = 0;
-	size_t y_1 = 0;
-	Color color;
-};
+void VectorInCoordinateSystem::Rotate(float angle) {
+	float& x = coordinate_.x;
+	float& y = coordinate_.y;
+	float temp = x;
+  x = x * cosf(angle) - y * sinf(angle);
+  y = temp * sinf(angle) + y * cosf(angle);
+}
+
+CoordinateSystem::CoordinateSystem(Axes* axes) {
+	axes_ = axes;
+}
+
+void CoordinateSystem::DrawVector(
+	   VectorInCoordinateSystem& vector,
+     Render& render) {
+	Vector vector_shape(ConvertCoordinate(vector.origin_),
+		                  ConvertCoordinate(vector.origin_ + vector.coordinate_),
+	                    vector.color_);
+  vector_shape.Draw(render);
+}
+
+Point2D<size_t> CoordinateSystem::ConvertCoordinate(Point2D<float> a) {
+	Point2D<size_t> center = {axes_->x2_.x, axes_->x1_.y};
+	Point2D<size_t> p11 = axes_->point_1_1_;
+	return {center.x + (int)(a.x * (float)(p11.x - center.x)),
+	        center.y - (int)(a.y * (float)(center.y - p11.y))};
+}
+
+void CoordinateSystem::DrawFunction(float (*func)(float),
+	                                  Render& render, Color color) {
+	float temp = -(float)(axes_->x2_.x - axes_->x1_.x) / (float)(axes_->point_1_1_.x - axes_->x2_.x);
+	Point2D<float> prev = {temp, func(temp)}; // previous point
+	render.DrawPoint(ConvertCoordinate(prev), color);
+	float max_x = axes_->max_coord_.x;
+	float d_x = max_x / 50;
+	Point2D<float> cur = {}; // current point
+	for (cur.x = prev.x + d_x; cur.x < max_x; cur.x += d_x) {
+		cur.y = func(cur.x);
+		if (abs(cur.y) <= axes_->max_coord_.y) {
+		  render.DrawPoint(ConvertCoordinate(cur), color);
+		  render.DrawLine(ConvertCoordinate(cur), ConvertCoordinate(prev), color);
+		}
+		prev = cur;
+	}
+}

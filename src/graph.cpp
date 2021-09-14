@@ -4,110 +4,6 @@
 #include "../include/graph.h"
 #include <iostream>
 
-
-
-float ParabolaFunc(float x) {
-	return x * x - 1;
-}
-
-float SinFunc(float x) {
-	return sin(x);
-}
-
-void DrawAxes(Window* win, Axes* axes) {
-  Color color = axes->color;
-  SDL_SetRenderDrawColor(win->renderer, color.red, color.green, color.blue, 0);
-  GraphFrame* frame = axes->frame_ptr;
-
-  // ------------------------------------------------------------------------------------
-  // Drawing Ox
-
-  size_t x1 = frame->x;
-  size_t y1 = axes->center_y + frame->y;
-  size_t x2 = frame->x + frame->width;
-  size_t y2 = axes->center_y + frame->y;
-  SDL_RenderDrawLine(win->renderer, (int)x1, (int)y1,
-  	                                (int)x2, (int)y2);
-  DrawText(win, "x", x2 - 13, y2 - 25);
-  SDL_RenderDrawLine(win->renderer, (int)(x2 - 10), (int)(axes->center_y + frame->y - 5),
-  	                                (int)(x2 - 10), (int)(axes->center_y + frame->y + 5));
-  char num_str[10] = {};
-  sprintf(num_str, "%lu\n", axes->max_x);
-  size_t max_x_coord = x2 - 15; // relative to window
-  DrawText(win, num_str, max_x_coord, axes->center_y + frame->y + 10);
-
-  axes->x_1 = axes->center_x + (size_t)((float)(max_x_coord - frame->x - axes->center_x) / (float)axes->max_x);
-  SDL_RenderDrawLine(win->renderer, (int)(axes->x_1 + frame->x), (int)(axes->center_y + frame->y - 5),
-  	                                (int)(axes->x_1 + frame->x), (int)(axes->center_y + frame->y + 5));
-  DrawText(win, "1", axes->x_1 + frame->x - 2, axes->center_y + frame->y + 10);
-
-  // ------------------------------------------------------------------------------------
-  // ------------------------------------------------------------------------------------
-
-  // ------------------------------------------------------------------------------------
-  // Drawing Oy
-
-  x1 = axes->center_x + frame->x;
-  y1 = frame->y;
-  x2 = axes->center_x + frame->x;
-  y2 = frame->y + frame->height;
-  SDL_RenderDrawLine(win->renderer, (int)x1, (int)y1,
-  	                                (int)x2, (int)y2);
-  DrawText(win, "y", x1 - 15, y1 + 3);
-  SDL_RenderDrawLine(win->renderer, (int)(axes->center_x + frame->x + 5), (int)(frame->y + 10),
-  	                                (int)(axes->center_x + frame->x - 5), (int)(frame->y + 10));
-  sprintf(num_str, "%lu\n", axes->max_y);
-  size_t max_y_coord = frame->y + 15; // relative to window
-  DrawText(win, num_str, axes->center_x + frame->x + 10, frame->y);
-
-  axes->y_1 = axes->center_y - (size_t)((float)(axes->center_y - (max_y_coord - frame->y)) / (float)axes->max_y);
-  SDL_RenderDrawLine(win->renderer, (int)(axes->center_x + frame->x + 5), (int)(axes->y_1 + frame->y),
-  	                                (int)(axes->center_x + frame->x - 5), (int)(axes->y_1 + frame->y));
-  DrawText(win, "1", axes->center_x + frame->x - 18, axes->y_1 + frame->y - 8);
-
-  // ------------------------------------------------------------------------------------
-  // ------------------------------------------------------------------------------------
-
-  DrawText(win, "0", axes->center_x + frame->x - 18, axes->center_y + frame->y + 8);
-}
-
-
-
-
-
-  size_t x1 = frame->x;
-  size_t y1 = axes->center_y + frame->y;
-  size_t x2 = frame->x + frame->width;
-  size_t y2 = axes->center_y + frame->y;
-  SDL_RenderDrawLine(win->renderer, (int)x1, (int)y1,
-  	                                (int)x2, (int)y2);
-  DrawText(win, "x", x2 - 13, y2 - 25);
-  SDL_RenderDrawLine(win->renderer, (int)(x2 - 10), (int)(axes->center_y + frame->y - 5),
-  	                                (int)(x2 - 10), (int)(axes->center_y + frame->y + 5));
-  char num_str[10] = {};
-  sprintf(num_str, "%lu\n", axes->max_x);
-  size_t max_x_coord = x2 - 15; // relative to window
-  DrawText(win, num_str, max_x_coord, axes->center_y + frame->y + 10);
-
-  axes->x_1 = axes->center_x + (size_t)((float)(max_x_coord - frame->x - axes->center_x) / (float)axes->max_x);
-  SDL_RenderDrawLine(win->renderer, (int)(axes->x_1 + frame->x), (int)(axes->center_y + frame->y - 5),
-  	                                (int)(axes->x_1 + frame->x), (int)(axes->center_y + frame->y + 5));
-  DrawText(win, "1", axes->x_1 + frame->x - 2, axes->center_y + frame->y + 10);
-
-
-
-
-
-
-
-void DrawGraphFrame(Window* win, GraphFrame* frame) {
-  SDL_Rect rect = {(int)frame->x, (int)frame->y,
-  	               (int)frame->width, (int)frame->height};
-  Color color = frame->color;
-  SDL_SetRenderDrawColor(win->renderer, color.red, color.green, color.blue, 0);
-  SDL_RenderFillRect(win->renderer, &rect);
-};
-
 // takes coord related to axes, returns coord related to window
 int ConvertXCoord(Axes* axes, float x) {
 	return (int)(x * (float)(axes->x_1 - axes->center_x)) + axes->frame_ptr->x + axes->center_x;
@@ -211,10 +107,7 @@ void DrawVector(Window* win, Vector* vec) {
   	                                      y - ConvertLenY(axes, arrow_y) / k);
 }
 
-void DrawVector(Window* win, Vector* vec) {
-	
-
-	
+void DrawVector(Window* win, Vector* vec) {	
  private:
 	float x_ = 0;
 	float y_ = 0;
