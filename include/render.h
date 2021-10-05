@@ -1,4 +1,5 @@
 #pragma once
+#include "main.h"
 
 struct Window;
 struct SDL_Renderer;
@@ -15,7 +16,7 @@ class Render {
 	void DrawPoint(Point2D<size_t> a,
 		   					 Color color = {});
 	void DrawRectangle(Point2D<size_t> left_corner,
-			               size_t width, size_t height,
+			               Point2D<size_t> right_corner,
 			               Color color);
 	void ChangeBackgroundColor(Color color);
   ~Render();

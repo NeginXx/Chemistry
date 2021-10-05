@@ -1,5 +1,4 @@
 #include <SDL2/SDL_ttf.h>
-#include "../include/main.h"
 #include "../include/render.h"
 #include "../include/window.h"
 
@@ -9,6 +8,14 @@ Window::Window(size_t width, size_t height) {
 	                           SDL_WINDOW_RESIZABLE);
   width_ = width;
   height_ = height;
+}
+
+size_t Window::GetWidth() {
+	return width_;
+}
+
+size_t Window::GetHeight() {
+	return height_;
 }
 
 SDL_Window* Window::GetWindow() {

@@ -1,5 +1,4 @@
 #include <SDL2/SDL_ttf.h>
-#include "../include/main.h"
 #include "../include/render.h"
 #include "../include/window.h"
 
@@ -39,11 +38,14 @@ void Render::DrawPoint(Point2D<size_t> a,
 }
 
 void Render::DrawRectangle(Point2D<size_t> left_corner,
-		                       size_t width, size_t height,
+		                       Point2D<size_t> right_corner,
 		                       Color color = {}) {
+	assert(left_corner.x < right_corner.x);
+	assert(left_corner.y < right_corner.y);
 	SDL_SetRenderDrawColor(render_, color.red, color.green, color.blue, 0x00);
 	SDL_Rect rect = {(int)left_corner.x, (int)left_corner.y,
-	                 (int)width, (int)height};
+	                 (int)(right_corner.x - left_corner.x),
+	                 (int)(right_corner.y - left_corner.y)};
   SDL_RenderFillRect(render_, &rect);
 }
 

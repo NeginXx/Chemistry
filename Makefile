@@ -1,27 +1,19 @@
-Gpp = g++
-Flags = -g $(shell pkg-config --cflags --libs sdl2 SDL2_ttf)
-bin = bin
-src = src
-Objs = $(bin)/window.o $(bin)/shapes.o $(bin)/app.o \
-       $(bin)/render.o $(bin)/CoordinateSystem.o $(bin)/main.o
+Flags = -g #-Wall -Wextra -pedantic
 
-out: $(Objs)
-	$(Gpp) $(Objs) -o out $(Flags)
+CXXFLAGS = $(Flags) $(shell pkg-config --cflags sdl2) -O2
+LXXFLAGS = $(shell pkg-config --libs sdl2 SDL2_ttf)
 
-$(bin)/window.o: $(src)/window.cpp
-	$(Gpp) -c $(Flags) $(src)/window.cpp -o $(bin)/window.o
+Include = include
+Src = src
+Bin = bin
 
-$(bin)/render.o: $(src)/render.cpp
-	$(Gpp) -c $(Flags) $(src)/render.cpp -o $(bin)/render.o
+Cpp = $(notdir $(wildcard $(Src)/*.cpp))
+Headers = $(Include)/list.h
+Objects = $(addprefix $(Bin)/, $(Cpp:.cpp=.o))
 
-$(bin)/app.o: $(src)/app.cpp
-	$(Gpp) -c $(Flags) $(src)/app.cpp -o $(bin)/app.o
+out: $(Objects)
+	g++ -o out $(Objects) $(LXXFLAGS)
 
-$(bin)/shapes.o: $(src)/shapes.cpp
-	$(Gpp) -c $(Flags) $(src)/shapes.cpp -o $(bin)/shapes.o
-
-$(bin)/CoordinateSystem.o: $(src)/CoordinateSystem.cpp
-	$(Gpp) -c $(Flags) $(src)/CoordinateSystem.cpp -o $(bin)/CoordinateSystem.o
-
-$(bin)/main.o: $(src)/main.cpp
-	$(Gpp) -c $(Flags) $(src)/main.cpp -o $(bin)/main.o
+vpath %.cpp $(Src)
+$(Bin)/%.o: %.cpp $(Headers) Makefile
+	g++ -c $< $(CXXFLAGS) -o $@

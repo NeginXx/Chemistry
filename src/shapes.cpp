@@ -1,50 +1,39 @@
 #include <math.h>
 #include <stdio.h>
-#include "../include/main.h"
-#include "../include/render.h"
 #include "../include/shapes.h"
 
-Line::Line(Point2D<size_t> a, Point2D<size_t> b,
-	         Color color = {}) {
-	a_ = a;
-	b_ = b;
+PixelRectangle::PixelRectangle(Point2D<size_t> left_corner,
+                               Point2D<size_t> right_corner,
+                               Color color) {
+	left_corner_ = left_corner;
+	right_corner_ = right_corner;
 	color_ = color;
 }
 
-void Line::Draw(Render& render) {
-	render.DrawLine(a_, b_, color_);
+void PixelRectangle::Draw(Render& render) {
+	render.DrawRectangle(left_corner_, right_corner_, color_);
 }
 
-Rectangle::Rectangle(size_t x, size_t y, size_t width,
-	                   size_t height, Color color = {}) {
-	left_corner_ = {x, y};
-	width_ = width;
-	height_ = height;
-	color_ = color;
-}
 
-void Rectangle::Draw(Render& render) {
-	render.DrawRectangle(left_corner_, width_,
-		                   height_, color_);
-}
 
-Vector::Vector(Point2D<size_t> origin,
-	             Point2D<size_t> end,
-	             Color color = {}) {
+
+PixelVector::PixelVector(Point2D<size_t> origin,
+	                       Point2D<size_t> end,
+	                       Color color) {
 	origin_ = origin;
 	end_ = end;
 	color_ = color;
 }
 
-Point2D<size_t>& Vector::GetOrigin() {
+Point2D<size_t>& PixelVector::GetOrigin() {
 	return origin_;
 }
 
-Point2D<size_t>& Vector::GetEnd() {
+Point2D<size_t>& PixelVector::GetEnd() {
 	return end_;
 }
 
-void Vector::Rotate(float angle) {
+void PixelVector::Rotate(float angle) {
 	Point2D<int> vec_coord = {0, 0};
 
 	if (end_.x > origin_.x) {
@@ -66,7 +55,7 @@ void Vector::Rotate(float angle) {
   end_ = {vec_coord.x + origin_.x, vec_coord.y + origin_.y};
 }
 
-void Vector::Normalize(float length) {
+void PixelVector::Normalize(float length) {
 	float vec_length = sqrt(pow((float)end_.x - (float)origin_.x, 2) +
 		                      pow((float)end_.y - (float)origin_.y, 2));
 	float factor = length / vec_length;
@@ -74,87 +63,236 @@ void Vector::Normalize(float length) {
 	end_.y = origin_.y + ((int)end_.y - (int)origin_.y) * factor;
 }
 
-void Vector::Draw(Render& render) {
+void PixelVector::Draw(Render& render) {
 	// vec_end - end of auxiliary vector
 	Point2D<size_t> vec_end = { end_.x - ((int)end_.x - (int)origin_.x) / 10,
 	                            end_.y + ((int)origin_.y - (int)end_.y) / 10 };
-	Vector vec(end_, vec_end, color_);
+	PixelVector vec(end_, vec_end, color_);
 	vec.Normalize(30);
 	float angle = 20.0 / 180.0 * M_PI;
 	vec.Rotate(angle);
-
-	Line arrow_line1(end_, vec.GetEnd(), color_);
+	render.DrawLine(end_, vec.GetEnd(), color_);
 	vec.Rotate(-2 * angle);
-	Line arrow_line2(end_, vec.GetEnd(), color_);
-
-	arrow_line1.Draw(render);
-	arrow_line2.Draw(render);
-	Line main_line(origin_, end_, color_);
-	main_line.Draw(render);
+	render.DrawLine(end_, vec.GetEnd(), color_);
+	render.DrawLine(origin_, end_, color_);
 }
 
-Axes::Axes(Point2D<size_t> x1,
-           Point2D<size_t> y1,
-           Point2D<size_t> x2,
-           Point2D<size_t> y2,
-           Point2D<float> max_coord,
-           Color color = {}) {
-	x1_ = x1;
-	y1_ = y1;
-	x2_ = x2;
-	y2_ = y2;
-	max_coord_ = max_coord;
+
+Color Shape::GetColor() {
+	return color_;
+}
+
+
+Line::Line(Point2D<float> a, Point2D<float> b,
+	         Color color, bool is_thick) {
+	a_ = a;
+	b_ = b;
+	color_ = color;
+	is_thick_ = is_thick;
+}
+
+Point2D<float> Line::GetA() {
+	return a_;
+}
+
+Point2D<float> Line::GetB() {
+	return b_;
+}
+
+void Line::Draw(CoordinateSystem& coord_sys, Render& render) {
+	Point2D<size_t> a = coord_sys.ConvertCoordinate(a_);
+	Point2D<size_t> b = coord_sys.ConvertCoordinate(b_);
+	render.DrawLine(a, b, color_);
+	if (is_thick_) {
+		Point2D<size_t> ofs = {0, 1};
+		if (a.x != b.x) {
+			render.DrawLine(a + ofs, b + ofs, color_);
+			render.DrawLine(a - ofs, b - ofs, color_);
+		} else {
+			ofs = {1, 0};
+			render.DrawLine(a + ofs, b + ofs, color_);
+			render.DrawLine(a - ofs, b - ofs, color_);
+		}
+	}
+}
+
+
+
+
+Rectangle::Rectangle(Point2D<float> left_corner,
+                     Point2D<float> right_corner,
+                     Color color) {
+	left_corner_ = left_corner;
+	right_corner_ = right_corner;
 	color_ = color;
 }
 
-void Axes::Draw(Render& render) {
-	Vector x_axis(x1_, y1_, color_);
-	x_axis.Draw(render);
-	Vector y_axis(x2_, y2_, color_);
-	y_axis.Draw(render);
-
-  // ------------------------------------------------------------------------------------
-  // Drawing Ox labels
-
-	render.DrawText("x", {y1_.x - 13, y1_.y - 35});
-	Line line1({y1_.x - 10, y1_.y - 5},
-		         {y1_.x - 10, y1_.y + 5}, color_);
-	line1.Draw(render);
-
-  char num_str[10] = {};
-  sprintf(num_str, "%lu\n", (size_t)round(max_coord_.x));
-  size_t max_x_coord = y1_.x - 10;
-  render.DrawText(num_str, {y1_.x - 15, y1_.y + 10});
-
-  point_1_1_.x = x2_.x + (size_t)((float)(max_x_coord - x2_.x) / max_coord_.x);
-  Line line2({point_1_1_.x - 5, y1_.y - 5},
-  	         {point_1_1_.x - 5, y1_.y + 5}, color_);
-  line2.Draw(render);
-  render.DrawText("1", {point_1_1_.x - 8, y1_.y + 10});
-
-  // ------------------------------------------------------------------------------------
-  // ------------------------------------------------------------------------------------
-
-  // ------------------------------------------------------------------------------------
-  // Drawing Oy labels
-
-	render.DrawText("y", {y2_.x - 20, y2_.y - 3});
-	Line line3({y2_.x + 5, y2_.y + 10},
-		         {y2_.x - 5, y2_.y + 10}, color_);
-	line3.Draw(render);
-
-  sprintf(num_str, "%lu\n", (size_t)round(max_coord_.y));
-  size_t max_y_coord = y2_.y + 10;
-  render.DrawText(num_str, {y2_.x + 10, y2_.y});
-
-	point_1_1_.y = x1_.y - (size_t)((float)(x1_.y - max_y_coord) / max_coord_.y);
-  Line line4({y2_.x + 5, point_1_1_.y},
-  	         {y2_.x - 5, point_1_1_.y}, color_);
-  line4.Draw(render);
-  render.DrawText("1", {y2_.x - 18, point_1_1_.y - 12});
-
-  // ------------------------------------------------------------------------------------
-  // ------------------------------------------------------------------------------------
-
-  render.DrawText("0", {x2_.x - 20, x1_.y + 3});
+void Rectangle::Draw(CoordinateSystem& coord_sys, Render& render) {
+	render.DrawRectangle(coord_sys.ConvertCoordinate(left_corner_),
+		                   coord_sys.ConvertCoordinate(right_corner_),
+		                   color_);
 }
+
+Point2D<float> Rectangle::GetCenter() {
+	return left_corner_ + (right_corner_ - left_corner_) / (float)2.0;
+}
+
+float Rectangle::GetWidth() {
+	return right_corner_.x - left_corner_.x;
+}
+
+float Rectangle::GetHeight() {
+	return left_corner_.y - right_corner_.y;
+}
+
+
+
+
+Vector::Vector(Point2D<float> origin,
+               Point2D<float> coordinate,
+               Color color) {
+  origin_ = origin;
+  coordinate_ = coordinate;
+  color_ = color;
+}
+
+void Vector::Rotate(float angle) {
+  float& x = coordinate_.x;
+  float& y = coordinate_.y;
+  float temp = x;
+  x = x * cosf(angle) - y * sinf(angle);
+  y = temp * sinf(angle) + y * cosf(angle);
+}
+
+void Vector::Draw(CoordinateSystem& coord_sys,
+                  Render& render) {
+  PixelVector vec(coord_sys.ConvertCoordinate(origin_),
+                  coord_sys.ConvertCoordinate(origin_ + coordinate_),
+                  color_);
+  vec.Draw(render);
+}
+
+
+
+
+Circle::Circle(Point2D<float> center,
+               float radius,
+               Color color) {
+  center_ = center;
+  radius_ = radius;
+  color_ = color;
+}
+
+Point2D<float> Circle::GetCenter() {
+	return center_;
+}
+
+float Circle::GetRadius() {
+	return radius_;
+}
+
+inline bool PointIsInCircle(size_t x, size_t y,
+	                          Point2D<size_t> center,
+	                          size_t radius) {
+	return pow((double)x - (double)center.x, 2) + pow((double)y - (double)center.y, 2) - pow((double)radius, 2) <= 0;
+}
+
+void Circle::Draw(CoordinateSystem& coord_sys,
+                  Render& render) {
+	// l_c - left_corner, r_c - right_corner
+	size_t width = coord_sys.ConvertXLength(radius_);
+	size_t height = coord_sys.ConvertYLength(radius_);
+	size_t radius = width > height ? width : height;
+  Point2D<size_t> center = coord_sys.ConvertCoordinate(center_);
+  Point2D<size_t> l_c = center - (Point2D<size_t>){radius, radius};
+  Point2D<size_t> r_c = center + (Point2D<size_t>){radius, radius};
+	for (size_t y = l_c.y; y <= r_c.y; ++y) {
+		for (size_t x = l_c.x; x <= r_c.x; ++x) {
+		  if (PointIsInCircle(x, y, center, radius)) {
+		    render.DrawPoint({x, y}, color_);
+	    }
+		}
+	}
+}
+
+
+
+
+PhysicalShape::PhysicalShape(ShapeType type_, PhysicalShape* collision_partner_) :
+                            type(type_), collision_partner(collision_partner_) {}
+
+PhysicalRectangle::PhysicalRectangle(Point2D<float> left_corner,
+         Point2D<float> right_corner,
+         Vec2D<float> velocity,
+         float mass,
+         Color color) : Rectangle(left_corner, right_corner, color),
+                        velocity_(velocity), mass_(mass),
+                        PhysicalShape(kRectangle, nullptr) {}
+
+PhysicalRectangle::PhysicalRectangle(Point2D<float> center,
+                    float width,
+                    float height,
+                    Vec2D<float> velocity,
+                    float mass,
+                    Color color) :
+Rectangle(center + Point2D<float>(-width / 2, height / 2),
+	       center + Point2D<float>(width / 2, -height / 2), color),
+          velocity_(velocity), mass_(mass),
+          PhysicalShape(kRectangle, nullptr) {}
+
+void PhysicalRectangle::Move(float dt) {
+	left_corner_.x += velocity_.x * dt;
+	right_corner_.x += velocity_.x * dt;
+	left_corner_.y += velocity_.y * dt;
+	right_corner_.y += velocity_.y * dt;
+}
+
+Vec2D<float> PhysicalRectangle::GetVelocity() {
+	return velocity_;
+}
+
+void PhysicalRectangle::SetVelocity(Vec2D<float> vec) {
+	velocity_ = vec;
+}
+
+float PhysicalRectangle::GetMass() {
+	return mass_;
+}
+
+
+
+
+PhysicalCircle::PhysicalCircle(Point2D<float> center,
+	       Vec2D<float> velocity,
+         float mass,
+         float radius,
+         Color color) : Circle(center, radius, color),
+                        velocity_(velocity), mass_(mass),
+                        PhysicalShape(kCircle, nullptr) {}
+
+void PhysicalCircle::Move(float dt) {
+	center_.x += velocity_.x * dt;
+	center_.y += velocity_.y * dt;
+}
+
+Vec2D<float> PhysicalCircle::GetVelocity() {
+	return velocity_;
+}
+
+void PhysicalCircle::SetVelocity(Vec2D<float> vec) {
+	velocity_ = vec;
+}
+
+float PhysicalCircle::GetMass() {
+	return mass_;
+}
+
+
+
+
+PhysicalWall::PhysicalWall(Point2D<float> a,
+	       Point2D<float> b,
+         Color color) : Line(a, b, color, true),
+                        PhysicalShape(kWall, nullptr) {}
+
+void PhysicalWall::Move(float dt) {}

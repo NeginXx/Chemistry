@@ -1,30 +1,53 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <iostream>
+#include <vector>
+#include <list>
+#include "include/list.h"
 
-class A {
-public:
-    virtual void pr() {
-        printf("a\n");
-    }    
+class Up {
+ public:
+  virtual void Print() {
+    printf("Up\n");
+  }
+  int a_;
 };
 
-class B : public A {
-public:
-    virtual void pr() override {
-        printf("b\n");
-    }
+class Left : public virtual Up {
+ public:
+  // virtual void Print() override {
+  //   printf("Left\n");
+  // }
+  int b_;
+};
+
+class Right : public virtual Up {
+ public:
+  virtual void Print() override {
+    printf("Right\n");
+  }
+  int b_;
+};
+
+class Down : public Left, public Right {
+ public:
+  virtual void Print() override {
+    printf("Down\n");
+  }
+  int b_;
 };
 
 int main() {
-	// так не работает как мы хотим
-  A a{};
-  B b{};
-  A mas[2] = {a, b};
-  mas[1].pr();
-
-  // а так работает
-  A a{};
-  B b{};
-  A* mas[2] = {&a, &b};
-  mas[1]->pr();
+  List<int> l = {1, 2, 3, 4};
+  for (auto elem : l) {
+    printf("%d\n", elem);
+  }
+  // Up up;
+  // Left left;
+  // Right right;
+  // Down down;
+  // // Up* arr[4] = {&up, &left, &right, &down};
+  // // for (size_t i = 0; i < 4; ++i) {
+  // //   arr[i]->Print();
+  // // }
+  // Left* down_ptr = &down;
+  // down_ptr->Print();
 }

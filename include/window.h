@@ -1,8 +1,12 @@
 #pragma once
 
+struct SDL_Window;
+
 class Window {
  public:
 	Window(size_t width, size_t height);
+	size_t GetWidth();
+	size_t GetHeight();
 	SDL_Window* GetWindow();
 	void RenderPresent(Render& render);
 	~Window();
