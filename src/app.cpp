@@ -49,7 +49,7 @@ void RunAppMainCycle(CoordinateSystem& coord_sys,
     // if ((double)(clock() - t) / CLOCKS_PER_SEC > 40.0) {
     //   break;
     // }
-    // SDL_Delay(200);
+    // SDL_Delay(100);
     while (SomeEventInQueue(&event)) {
       if (event.type == SDL_QUIT) {
         is_running = false;
@@ -71,7 +71,11 @@ void RunApp(Window& window, Render& render) {
   float max_x = 50.0;
   float max_y = max_x * (float)height / (float)width;
   CoordinateSystem coord_sys({0, 0}, {width, height}, {-max_x, -max_y}, {max_x, max_y});
-  MoleculeBox box({-(max_x * 0.8), max_y * 0.8}, {max_x * 0.8, -(max_y * 0.8)}, kRed, kWhite);
+  float box_min_x = -max_x;
+  float box_max_x = max_x * 0.5;
+  float box_min_y = -max_y * 0.9;
+  float box_max_y = max_y * 0.9;
+  MoleculeBox box({box_min_x, box_max_y}, {box_max_x, box_min_y}, kRed, kWhite);
 
   // #define DEBUG
   #ifdef DEBUG
@@ -90,21 +94,21 @@ void RunApp(Window& window, Render& render) {
   box.AddShape<PhysicalRectangle>(Point2D<float>(5.0, 0.0), 2.0, 2.0, rect2_velocity * factor, 1.0, kBlue);
 
   #else
-  float factor = 5;
+  float factor = 4;
   for (size_t i = 0; i < 30; ++i) {
-    Point2D<float> center = {RandomFloat(-7.5, 7.5), RandomFloat(-4, 4)};
+    Point2D<float> center = {RandomFloat(box_min_x + 1, 0), RandomFloat(0, box_max_y - 1)};
     Vec2D<float> velocity = {RandomFloat(-20, 20), RandomFloat(-20, 20)};
-    float mass = RandomFloat(0.2, 2);
-    float radius = sqrtf(mass / kPi) * 0.8;
+    float mass = RandomFloat(0.2, 4);
+    float radius = sqrtf(mass / kPi);
     box.AddShape<PhysicalCircle>(center, velocity * factor, mass, radius, kBlue);
   }
 
-  for (size_t i = 0; i < 10; ++i) {
-    Point2D<float> center = {RandomFloat(-7.5, 7.5), RandomFloat(-4, 4)};
-    float width = RandomFloat(0.4, 1.2);
-    float height = RandomFloat(0.4, 1.2);
+  for (size_t i = 0; i < 50; ++i) {
+    Point2D<float> center = {RandomFloat(box_min_x + 1, 0), RandomFloat(0, box_max_y - 1)};
     Vec2D<float> velocity = {RandomFloat(-20, 20), RandomFloat(-20, 20)};
-    float mass = RandomFloat(0.2, 2);
+    float mass = RandomFloat(0.2, 4);
+    float width = sqrtf(mass); // RandomFloat(0.4, 1.2);
+    float height = sqrtf(mass); // RandomFloat(0.4, 1.2);
     box.AddShape<PhysicalRectangle>(center, width, height, velocity * factor, mass, kBlue);
   }
   #endif

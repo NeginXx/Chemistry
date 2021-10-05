@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "../include/MoleculeBox.h"
 
-const float kMinEnergyToReact = 10.0;
+const float kMinEnergyToReact = 5.0;
 
 MoleculeBox::MoleculeBox(Point2D<float> left_corner,
                          Point2D<float> right_corner,
@@ -188,11 +188,17 @@ namespace MakeChemistry {
     float m2 = crl2->GetMass();
     Vec2D<float> v1 = crl1->GetVelocity();
     Vec2D<float> v2 = crl2->GetVelocity();
-    box->AddShape<PhysicalCircle>((crl1->GetCenter() + crl2->GetCenter()) / (float)2.0,
-                                  (v1 * m1 + v2 * m2) / (m1 + m2),
-                                  m1 + m2,
-                                  sqrtf((m1 + m2) / kPi),
-                                  crl1->GetColor());
+    // box->AddShape<PhysicalCircle>((crl1->GetCenter() + crl2->GetCenter()) / (float)2.0,
+    //                               (v1 * m1 + v2 * m2) / (m1 + m2),
+    //                               m1 + m2,
+    //                               sqrtf((m1 + m2) / kPi),
+    //                               crl1->GetColor());
+    box->AddShape<PhysicalRectangle>((crl1->GetCenter() + crl2->GetCenter()) / (float)2.0,
+                                     sqrtf(m1 + m2) * 0.5,
+                                     sqrtf(m1 + m2) * 0.5,
+                                     (v1 * m1 + v2 * m2) / (m1 + m2),
+                                     m1 + m2,
+                                     crl1->GetColor());
     $$;
   }
 
@@ -202,8 +208,8 @@ namespace MakeChemistry {
     Vec2D<float> v1 = crl->GetVelocity();
     Vec2D<float> v2 = rect->GetVelocity();
     box->AddShape<PhysicalRectangle>((crl->GetCenter() + rect->GetCenter()) / (float)2.0,
-                                     sqrtf(m1 + m2) * 0.5,
-                                     sqrtf(m1 + m2) * 0.5,
+                                     sqrtf(m1 + m2),
+                                     sqrtf(m1 + m2),
                                      (v1 * m1 + v2 * m2) / (m1 + m2),
                                      m1 + m2,
                                      rect->GetColor());
@@ -331,19 +337,48 @@ void MoleculeBox::ProcessOneIteration(float dt) {
     $$;
   }
 
-  int cnt = 0;
-  for (auto elem = shapes_.begin(); elem != shapes_.end(); ++elem) {
+  auto elem = shapes_.begin();
+  while (elem != shapes_.end()) {
     $;
     (*elem)->Move(dt);
+    if (!IsInBound(*elem)) {
+      List<PhysicalShape*>::iterator it = elem++;
+      shapes_.Pop(it);
+    } else {
+      ++elem;
+    }
     $$;
   }
   $$;
 }
 
+bool MoleculeBox::IsInBound(PhysicalShape* shape) {
+  Point2D<float> center;
+  switch (shape->type) {
+    case kCircle:
+      center = ((PhysicalCircle*)shape)->GetCenter();
+      return center.x >= left_corner_.x  &&
+             center.x <= right_corner_.x &&
+             center.y >= right_corner_.y &&
+             center.y <= left_corner_.y;
+    case kRectangle:
+      center = ((PhysicalRectangle*)shape)->GetCenter();
+      return center.x >= left_corner_.x  &&
+             center.x <= right_corner_.x &&
+             center.y >= right_corner_.y &&
+             center.y <= left_corner_.y;
+    case kWall:
+      return true;
+  }
+  return false;
+}
+
 void MoleculeBox::Draw(CoordinateSystem& coord_sys, Render& render) {
 	// Rectangle background(left_corner_, right_corner_, background_color_);
 	// background.Draw(coord_sys, render);
+  $;
 	for (auto elem : shapes_) {
 		elem->Draw(coord_sys, render);
 	}
+  $$;
 }

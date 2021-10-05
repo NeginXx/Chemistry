@@ -13,6 +13,7 @@ class MoleculeBox {
   void Draw(CoordinateSystem& coord_sys, Render& render);
   template <typename ShapeType, class... Args>
   void AddShape(Args... args);
+  bool IsInBound(PhysicalShape* shape);
 
  private:
   List<PhysicalShape*> shapes_;

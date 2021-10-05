@@ -47,11 +47,15 @@ size_t CoordinateSystem::ConvertYLength(float len) {
 	return lenn > 1 ? lenn : 1;
 }
 
+size_t Min(size_t a, size_t b) {
+	return a < b ? a : b;
+}
+
 Point2D<size_t> CoordinateSystem::ConvertCoordinate(Point2D<float> a) {
 	Point2D<size_t> p11 = point_1_1_;
 	Point2D<size_t> center = axes_center_;
-	return {center.x + (int)(a.x * (float)(p11.x - center.x)),
-	        center.y - (int)(a.y * (float)(center.y - p11.y))};
+	return {Min(center.x + (int)(a.x * (float)(p11.x - center.x)), 3000),
+	        Min(center.y - (int)(a.y * (float)(center.y - p11.y)), 3000)};
 }
 
 void CoordinateSystem::DrawFunction(float (*func)(float),

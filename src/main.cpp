@@ -6,7 +6,7 @@
 int main() {
   signal(SIGSEGV, PrintStackInfoAndExit);
   srand(time(NULL));
-  Window window(1400, 900);
+  Window window(1500, 1000);
   Render render(window);
   RunApp(window, render);
 }
