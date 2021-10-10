@@ -1,19 +1,23 @@
 #pragma once
 #include "main.h"
-#include "render.h"
+#include "Render.h"
 
 class CoordinateSystem {
  public:
- 	CoordinateSystem(Point2D<size_t> left_corner,
-                   Point2D<size_t> right_corner,
-                   Point2D<float> min_coord,
-                   Point2D<float> max_coord,
-                   Color axes_color = {});
-  Point2D<size_t> ConvertCoordinate(Point2D<float> a);
-  size_t ConvertXLength(float len);
-  size_t ConvertYLength(float len);
- 	void DrawFunction(float (*func)(float), Render& render, Color color = {});
-  void Draw(Render& render, Color background_color);
+ 	CoordinateSystem(const Point2D<size_t>& left_corner,
+                   const Point2D<size_t>& right_corner,
+                   const Point2D<float>& min_coord,
+                   const Point2D<float>& max_coord,
+                   const Color& axes_color = {});
+  Point2D<size_t> ConvertCoordinate(const Point2D<float>& a) const;
+  Point2D<float> ConvertCoordinate(const Point2D<size_t>& a) const;
+  size_t ConvertXLength(float len) const;
+  size_t ConvertYLength(float len) const;
+ 	void DrawFunction(float (*func)(float), Render& render,
+                    const Color& color = {}) const;
+  void Draw(Render& render, const char* ox_str = "x",
+            const char* oy_str = "y",
+            const Color& background_color = {}) const;
 
  private:
   Point2D<size_t> left_corner_;

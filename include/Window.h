@@ -5,10 +5,10 @@ struct SDL_Window;
 class Window {
  public:
 	Window(size_t width, size_t height);
-	size_t GetWidth();
-	size_t GetHeight();
-	SDL_Window* GetWindow();
-	void RenderPresent(Render& render);
+	size_t GetWidth() const;
+	size_t GetHeight() const;
+	SDL_Window* GetWindow() const;
+	void RenderPresent(const Render& render) const;
 	~Window();
 
  private:

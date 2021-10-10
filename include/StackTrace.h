@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define $ FuncsCalledPush((struct FuncLine){__func__, __LINE__})
+#define $ FuncsCalledPush(FuncLine{__func__, __LINE__})
 #define $$ CallStackPopback()
 #define RETURN $$; return
 

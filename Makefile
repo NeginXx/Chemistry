@@ -1,6 +1,6 @@
-Flags = -g #-Wall -Wextra -pedantic
+Flags = -std=c++17 -g -Wall -Wextra -pedantic -Wno-unused-parameter -Wno-unused-variable -O2
 
-CXXFLAGS = $(Flags) $(shell pkg-config --cflags sdl2) -O2
+CXXFLAGS = $(Flags) $(shell pkg-config --cflags sdl2)
 LXXFLAGS = $(shell pkg-config --libs sdl2 SDL2_ttf)
 
 Include = include
@@ -8,7 +8,7 @@ Src = src
 Bin = bin
 
 Cpp = $(notdir $(wildcard $(Src)/*.cpp))
-Headers = $(Include)/list.h
+Headers = $(Include)/List.h
 Objects = $(addprefix $(Bin)/, $(Cpp:.cpp=.o))
 
 out: $(Objects)

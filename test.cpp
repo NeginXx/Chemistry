@@ -1,53 +1,18 @@
 #include <iostream>
-#include <vector>
-#include <list>
-#include "include/list.h"
 
-class Up {
- public:
-  virtual void Print() {
-    printf("Up\n");
+struct A {
+  virtual void operator()(int a) {
+    std::cout << a << '\n';
   }
-  int a_;
 };
 
-class Left : public virtual Up {
- public:
-  // virtual void Print() override {
-  //   printf("Left\n");
-  // }
-  int b_;
-};
-
-class Right : public virtual Up {
- public:
-  virtual void Print() override {
-    printf("Right\n");
+struct B : public A {
+  void operator()(int a) override {
+    std::cout << a + 1 << '\n';
   }
-  int b_;
-};
-
-class Down : public Left, public Right {
- public:
-  virtual void Print() override {
-    printf("Down\n");
-  }
-  int b_;
 };
 
 int main() {
-  List<int> l = {1, 2, 3, 4};
-  for (auto elem : l) {
-    printf("%d\n", elem);
-  }
-  // Up up;
-  // Left left;
-  // Right right;
-  // Down down;
-  // // Up* arr[4] = {&up, &left, &right, &down};
-  // // for (size_t i = 0; i < 4; ++i) {
-  // //   arr[i]->Print();
-  // // }
-  // Left* down_ptr = &down;
-  // down_ptr->Print();
+  unsigned char c = 255;
+  printf("%d\n", c + (unsigned char)1 < c);
 }

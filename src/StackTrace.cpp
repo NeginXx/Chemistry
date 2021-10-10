@@ -65,9 +65,9 @@ struct FuncLine* FuncsCalledGetValues(size_t* num) {
     *num = sz;
   }
   struct FuncLine* arr = (struct FuncLine*)calloc(*num, sizeof(int));
-  assert(arr != NULL || !"Calloc failed in StackTrace.h:FuncsCalledGetValues");
+  assert(arr != NULL && "Calloc failed in StackTrace.cpp:FuncsCalledGetValues");
   for (size_t i = 0; i < *num; i++) {
-    arr[i] = (struct FuncLine){(funcs_called.ptr[i]).func_name_, (funcs_called.ptr[i]).line_};
+    arr[i] = FuncLine{(funcs_called.ptr[i]).func_name_, (funcs_called.ptr[i]).line_};
   }
   return arr;
 }
@@ -127,7 +127,7 @@ void CallStackPopback() {
     fprintf(stderr, "CallStackPopback from empty stack!!!\n");
     return;
   }
-  funcs_called.ptr[--funcs_called.sz] = (struct FuncLine){NULL, 0};
+  funcs_called.ptr[--funcs_called.sz] = FuncLine{NULL, 0};
   if (funcs_called.sz > funcs_called.mincapacity &&
       funcs_called.sz <= funcs_called.capacity / (funcs_called.incfac * funcs_called.incfac)) {
     CallStackShrink();

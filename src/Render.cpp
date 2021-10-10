@@ -1,45 +1,47 @@
 #include <SDL2/SDL_ttf.h>
-#include "../include/render.h"
-#include "../include/window.h"
+#include "../include/Render.h"
+#include "../include/Window.h"
 
-Render::Render(Window& window) {
+const size_t kFontSize = 30;
+
+Render::Render(const Window& window) {
 	assert(TTF_Init() >= 0);
-	font_ = TTF_OpenFont("font.ttf", 30);
+	font_ = TTF_OpenFont("font.ttf", kFontSize);
 	assert(font_ != NULL);
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
 	render_ = SDL_CreateRenderer(window.GetWindow(), -1,
 		                           SDL_RENDERER_ACCELERATED);
 }
 
-SDL_Renderer* Render::GetRender() {
+SDL_Renderer* Render::GetRender() const {
   return render_;
 }
 
-void Render::DrawText(const char* text_str, Point2D<size_t> coord) {
-	SDL_Surface* text = TTF_RenderText_Solid(font_, text_str, {0, 0, 0});
+void Render::DrawText(const char* text_str, const Point2D<size_t>& coord) {
+	SDL_Surface* text = TTF_RenderText_Solid(font_, text_str, SDL_Color{0, 0, 0, 0});
 	assert(text != NULL);
 	SDL_Texture* text_texture = SDL_CreateTextureFromSurface(render_, text);
   SDL_Rect dest = {(int)coord.x, (int)coord.y, text->w, text->h};
   SDL_RenderCopy(render_, text_texture, NULL, &dest);
 }
 
-void Render::DrawLine(Point2D<size_t> a,
-	                    Point2D<size_t> b,
-	   					        Color color) {
+void Render::DrawLine(const Point2D<size_t>& a,
+	                    const Point2D<size_t>& b,
+	   					        const Color& color) {
   SDL_SetRenderDrawColor(render_, color.red, color.green, color.blue, 0);
   SDL_RenderDrawLine(render_, (int)a.x, (int)a.y,
   	                          (int)b.x, (int)b.y);
 }
 
-void Render::DrawPoint(Point2D<size_t> a,
-	   					         Color color) {
+void Render::DrawPoint(const Point2D<size_t>& a,
+	   					         const Color& color) {
   SDL_SetRenderDrawColor(render_, color.red, color.green, color.blue, 0);
 	SDL_RenderDrawPoint(render_, (int)a.x, (int)a.y);
 }
 
-void Render::DrawRectangle(Point2D<size_t> left_corner,
-		                       Point2D<size_t> right_corner,
-		                       Color color = {}) {
+void Render::DrawRectangle(const Point2D<size_t>& left_corner,
+		                       const Point2D<size_t>& right_corner,
+		                       const Color& color = {}) {
 	assert(left_corner.x < right_corner.x);
 	assert(left_corner.y < right_corner.y);
 	SDL_SetRenderDrawColor(render_, color.red, color.green, color.blue, 0x00);
@@ -49,7 +51,7 @@ void Render::DrawRectangle(Point2D<size_t> left_corner,
   SDL_RenderFillRect(render_, &rect);
 }
 
-void Render::ChangeBackgroundColor(Color color) {
+void Render::ChangeBackgroundColor(const Color& color) {
   SDL_SetRenderDrawColor(render_, color.red, color.green, color.blue, 0x00);
   SDL_RenderClear(render_);
 }

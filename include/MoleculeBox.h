@@ -1,19 +1,20 @@
 #pragma once
-#include "shapes.h"
-#include "list.h"
+#include "Shapes.h"
+#include "List.h"
 
 class MoleculeBox {
  public:
-  MoleculeBox(Point2D<float> left_corner,
-              Point2D<float> right_corner,
-              Color frame_color,
-              Color background_color);
+  MoleculeBox(const Point2D<float>& left_corner,
+              const Point2D<float>& right_corner,
+              const Color& frame_color,
+              const Color& background_color);
   ~MoleculeBox();
   void ProcessOneIteration(float dt);
-  void Draw(CoordinateSystem& coord_sys, Render& render);
-  template <typename ShapeType, class... Args>
-  void AddShape(Args... args);
+  void Draw(const CoordinateSystem& coord_sys, Render& render) const;
+  template <typename ShapeType, typename... Args>
+  void AddShape(const Args&... args);
   bool IsInBound(PhysicalShape* shape);
+  void IncreaseWallsTemperature(float diff_temp);
 
  private:
   List<PhysicalShape*> shapes_;
@@ -23,8 +24,8 @@ class MoleculeBox {
   Color background_color_;
 };
 
-template <typename ShapeType, class... Args>
-void MoleculeBox::AddShape(Args... args) {
+template <typename ShapeType, typename... Args>
+void MoleculeBox::AddShape(const Args&... args) {
   ShapeType* shape = new ShapeType(args...);
   shapes_.PushFront(shape);
 }
