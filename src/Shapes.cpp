@@ -104,6 +104,14 @@ Point2D<float> Line::GetB() const {
 	return b_;
 }
 
+void Line::SetA(const Point2D<float>& a) {
+	a_ = a;
+}
+
+void Line::SetB(const Point2D<float>& b) {
+	b_ = b;
+}
+
 void Line::Draw(const CoordinateSystem& coord_sys, Render& render) const {
 	Point2D<size_t> a = coord_sys.ConvertCoordinate(a_);
 	Point2D<size_t> b = coord_sys.ConvertCoordinate(b_);

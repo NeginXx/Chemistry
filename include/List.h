@@ -41,9 +41,17 @@ class List {
     ++size_;
   }
 
-  // void PushBack(T val) {
-  //   assert(0);
-  // }
+  void PopBack() {
+    Node* node = tail_->prev;
+    tail_->prev = node->prev;
+    if (node->prev != nullptr) {
+      node->prev->next = tail_;
+    } else {
+      head_ = tail_;
+    }
+    delete node;
+    --size_;
+  }
 
   class Iterator {
    public:
@@ -81,6 +89,11 @@ class List {
 
     Iterator Next() const {
       Iterator it(this->node_ptr_->next);
+      return it;
+    }
+
+    Iterator Prev() const {
+      Iterator it(this->node_ptr_->prev);
       return it;
     }
 

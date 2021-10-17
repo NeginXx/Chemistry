@@ -13,8 +13,9 @@ class MoleculeBox {
   void Draw(const CoordinateSystem& coord_sys, Render& render) const;
   template <typename ShapeType, typename... Args>
   void AddShape(const Args&... args);
-  bool IsInBound(PhysicalShape* shape);
   void IncreaseWallsTemperature(float diff_temp);
+  float CalculateKineticEnergy() const;
+  bool IsInBound(PhysicalShape* shape);
 
  private:
   List<PhysicalShape*> shapes_;

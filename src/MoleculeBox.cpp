@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "../include/MoleculeBox.h"
 
-const float kMinEnergyToReact = 0.0f;
+const float kMinEnergyToReact = 100.0f;
 const float kUniGasConstant = 8.314f;
 
 MoleculeBox::MoleculeBox(const Point2D<float>& left_corner,
@@ -142,8 +142,8 @@ namespace VelocitysUpdate {
     float new_v1 = (2 * m2 * v2 + v1 * (m1 - m2)) / (m1 + m2);
     float new_v2 = (2 * m1 * v1 + v2 * (m2 - m1)) / (m1 + m2);
 
-    Vec2D<float> v1_normal = rect->GetVelocity() - aligned_vec * v1;//
-    Vec2D<float> v2_normal = crl->GetVelocity() - aligned_vec * v2;//
+    Vec2D<float> v1_normal = rect->GetVelocity() - aligned_vec * v1;
+    Vec2D<float> v2_normal = crl->GetVelocity() - aligned_vec * v2;
     rect->SetVelocity(v1_normal + aligned_vec * new_v1);
     crl->SetVelocity(v2_normal + aligned_vec * new_v2);
   }
@@ -373,4 +373,26 @@ void MoleculeBox::IncreaseWallsTemperature(float diff_temp) {
       reinterpret_cast<PhysicalWall*>(shape)->IncreaseTemperature(diff_temp);
     }
   }
+}
+
+float MoleculeBox::CalculateKineticEnergy() const {
+  float res = 0.0f;
+  PhysicalCircle* crl = nullptr;
+  PhysicalRectangle* rect = nullptr;
+  for (auto shape : shapes_) {
+    switch (shape->type) {
+      case kCircle:
+        crl = reinterpret_cast<PhysicalCircle*>(shape);
+        res += 0.5f * crl->GetMass() * crl->GetVelocity().SquaredLength();
+        break;
+      case kRectangle:
+        rect = reinterpret_cast<PhysicalRectangle*>(shape);
+        res += 0.5f * rect->GetMass() * rect->GetVelocity().SquaredLength();
+        break;
+      case kWall:
+      default:
+        break;
+    }
+  }
+  return res;
 }

@@ -48,6 +48,8 @@ class Line : public virtual Shape {
  		   const Color& color = {}, bool is_thick = false);
   Point2D<float> GetA() const;
   Point2D<float> GetB() const;
+  void SetA(const Point2D<float>& a);
+  void SetB(const Point2D<float>& b);
  	void Draw(const CoordinateSystem& coord_sys, Render& render) const override;
 
  protected:
