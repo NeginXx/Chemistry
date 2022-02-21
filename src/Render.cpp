@@ -6,8 +6,9 @@ const size_t kFontSize = 30;
 
 Render::Render(const Window& window) {
 	assert(TTF_Init() >= 0);
-	font_ = TTF_OpenFont("font.ttf", kFontSize);
-	assert(font_ != NULL);
+	// font_ = TTF_OpenFont("font.ttf", kFontSize);
+	// assert(font_ != NULL);
+	font_ = nullptr;
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
 	render_ = SDL_CreateRenderer(window.GetWindow(), -1,
 		                           SDL_RENDERER_ACCELERATED);

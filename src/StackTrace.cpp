@@ -1,4 +1,9 @@
-// signal(SIGSEGV, PrintStackInfoAndExit);
+/* Dont read this file, it's a mess
+   One of my first programs ever written :)
+   Still works fine tho
+*/
+
+// to enable StackTrace write in main(): signal(SIGSEGV, PrintStackInfoAndExit);
 #include "../include/StackTrace.h"
 
 struct CallStack {

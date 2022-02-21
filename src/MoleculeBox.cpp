@@ -2,8 +2,11 @@
 #include <stdio.h>
 #include "../include/MoleculeBox.h"
 
-const float kMinEnergyToReact = 100.0f;
+const float kMinEnergyToReact = 500.0f;
 const float kUniGasConstant = 8.314f;
+
+extern Color kCircleColor;
+extern Color kRectangleColor;
 
 MoleculeBox::MoleculeBox(const Point2D<float>& left_corner,
                          const Point2D<float>& right_corner,
@@ -202,7 +205,7 @@ namespace MakeChemistry {
                                      sqrtf(m1 + m2),
                                      (v1 * m1 + v2 * m2) / (m1 + m2),
                                      m1 + m2,
-                                     crl1->GetColor());
+                                     kCircleColor);
   }
 
   void CR(MoleculeBox* box, PhysicalCircle* crl, PhysicalRectangle* rect) {
@@ -211,11 +214,11 @@ namespace MakeChemistry {
     Vec2D<float> v1 = crl->GetVelocity();
     Vec2D<float> v2 = rect->GetVelocity();
     box->AddShape<PhysicalRectangle>((crl->GetCenter() + rect->GetCenter()) / 2.0f,
-                                     sqrtf(m1 + m2),
-                                     sqrtf(m1 + m2),
-                                     (v1 * m1 + v2 * m2) / (m1 + m2),
-                                     m1 + m2,
-                                     rect->GetColor());
+                                      sqrtf(m1 + m2),
+                                      sqrtf(m1 + m2),
+                                      (v1 * m1 + v2 * m2) / (m1 + m2),
+                                      m1 + m2,
+                                      kCircleColor);
   }
 
   void CW(MoleculeBox* box, PhysicalCircle* crl, PhysicalWall* wall) {}
@@ -233,7 +236,7 @@ namespace MakeChemistry {
     float angle = 2.0f * kPi / (float)num;
     for (size_t i = 0; i < num; ++i) {
       box->AddShape<PhysicalCircle>(Point2D<float>(center + center_ofs),
-                                    v, m / num, sqrtf(m / num / kPi), rect1->GetColor());
+                                    v, m / num, sqrtf(m / num / kPi), kRectangleColor);
       center_ofs.Rotate(angle);
       v.Rotate(angle);
     }
@@ -253,15 +256,15 @@ struct ProcessShapeFuncs {
 };
 
 void MoleculeBox::ProcessOneIteration(float dt) {
-  typedef bool(*BoolF)(PhysicalShape* s1, PhysicalShape* s2);
-  typedef void (*VoidF)(PhysicalShape* s1, PhysicalShape* s2);
-  typedef void (*VoidFF)(MoleculeBox* box, PhysicalShape* s1, PhysicalShape* s2);
+  typedef bool(*Func1)(PhysicalShape* s1, PhysicalShape* s2);
+  typedef void (*Func2)(PhysicalShape* s1, PhysicalShape* s2);
+  typedef void (*Func3)(MoleculeBox* box, PhysicalShape* s1, PhysicalShape* s2);
 
   #define PROCESS_SHAPE_FUNCS(TypeType) \
-  { (BoolF)DoIntersect::TypeType, \
-    (BoolF)IsEnergyEnough::TypeType, \
-    (VoidF)VelocitysUpdate::TypeType, \
-    (VoidFF)MakeChemistry::TypeType }
+  { (Func1)DoIntersect::TypeType, \
+    (Func1)IsEnergyEnough::TypeType, \
+    (Func2)VelocitysUpdate::TypeType, \
+    (Func3)MakeChemistry::TypeType }
 
   static ProcessShapeFuncs arr[3][3] = {
     {

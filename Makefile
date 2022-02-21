@@ -17,3 +17,7 @@ out: $(Objects)
 vpath %.cpp $(Src)
 $(Bin)/%.o: %.cpp $(Headers) Makefile
 	g++ -c $< $(CXXFLAGS) -o $@
+
+# ./out 1 is also possible
+run: out
+	./out 0
